@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JakLike - Order Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .balance-display {
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+        
+        .balance-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .order-details-container {
+            background: white;
+            border-radius: 16px;
+            margin: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .order-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+        }
+        
+        .order-id {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .order-status {
+            font-size: 1.1rem;
+            margin: 0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            display: inline-block;
+        }
+        
+        .order-body {
+            padding: 2rem;
+        }
+        
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .detail-value {
+            color: #333;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-processing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+            color: white;
+        }
+        
+        .sync-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin: 0 1rem 1rem 1rem;
+            color: #0c5460;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 0.75rem 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .nav-item {
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>📋 Order Details</h1>
+        <div class="balance-display">
+            <div class="balance-amount">${{ "%.2f"|format(user.balance) }}</div>
+            <small>Available Balance</small>
+        </div>
+    </div>
+    
+    <!-- Sync Info -->
+    <div class="sync-info">
+        <i class="fas fa-sync-alt"></i>
+        Balance automatically synced with your bot account
+    </div>
+    
+    <!-- Order Details -->
+    <div class="order-details-container">
+        <div class="order-header">
+            <div class="order-id">Order #{{ order.id }}</div>
+            <div class="order-status">
+                {% if order.status == 'pending' %}
+                    <i class="fas fa-clock"></i> Pending
+                {% elif order.status == 'processing' %}
+                    <i class="fas fa-cog fa-spin"></i> Processing
+                {% elif order.status == 'completed' %}
+                    <i class="fas fa-check-circle"></i> Completed
+                {% elif order.status == 'cancelled' %}
+                    <i class="fas fa-times-circle"></i> Cancelled
+                {% else %}
+                    <i class="fas fa-question-circle"></i> {{ order.status|title }}
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="order-body">
+            <!-- Service Information -->
+            <div class="detail-section">
+                <div class="section-title">
+                    <i class="fas fa-box"></i> Service Information
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Service Name:</span>
+                    <span class="detail-value">{{ order.service_name }}</span>
+                </div>
+                
+                {% if order.service_description %}
+                <div class="detail-item">
+                    <span class="detail-label">Description:</span>
+                    <span class="detail-value">{{ order.service_description }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="detail-item">
+                    <span class="detail-label">Quantity:</span>
+                    <span class="detail-value">{{ order.quantity }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Package Price:</span>
+                    <span class="detail-value">${{ "%.2f"|format(order.total_cost) }}</span>
+                </div>
+            </div>
+            
+            <!-- Order Details -->
+            <div class="detail-section">
+                <div class="section-title">
+                    <i class="fas fa-info-circle"></i> Order Details
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Order ID:</span>
+                    <span class="detail-value">#{{ order.id }}</span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Order Date:</span>
+                    <span class="detail-value">
+                        {% if order.created_at %}
+                            {{ order.created_at.split('T')[0] if 'T' in order.created_at else order.created_at }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Status:</span>
+                    <span class="detail-value">
+                        <span class="status-badge 
+                            {% if order.status == 'pending' %}status-pending
+                            {% elif order.status == 'processing' %}status-processing
+                            {% elif order.status == 'completed' %}status-completed
+                            {% elif order.status == 'cancelled' %}status-cancelled
+                            {% endif %}">
+                            {{ order.status|title }}
+                        </span>
+                    </span>
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Total Cost:</span>
+                    <span class="detail-value">${{ "%.2f"|format(order.total_cost) }}</span>
+                </div>
+            </div>
+            
+            <!-- Link & Information -->
+            <div class="detail-section">
+                <div class="section-title">
+                    <i class="fas fa-link"></i> Target & Requirements
+                </div>
+                
+                <div class="detail-item">
+                    <span class="detail-label">Target Link:</span>
+                    <span class="detail-value">
+                        <a href="{{ order.link }}" target="_blank" class="text-break">
+                            {{ order.link[:50] }}{% if order.link|length > 50 %}...{% endif %}
+                        </a>
+                    </span>
+                </div>
+                
+                {% if order.additional_info %}
+                <div class="detail-item">
+                    <span class="detail-label">Additional Info:</span>
+                    <span class="detail-value">{{ order.additional_info }}</span>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Actions -->
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back to Orders
+            </button>
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="/dashboard" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/services" class="nav-item">
+            <i class="fas fa-box"></i>
+            <span>Services</span>
+        </a>
+        <a href="/orders" class="nav-item active">
+            <i class="fas fa-list"></i>
+            <span>Orders</span>
+        </a>
+        <a href="/balance" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Balance</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+        
+        // Auto-refresh balance every 30 seconds
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/sync_balance');
+                const data = await response.json();
+                if (data.success) {
+                    document.querySelector('.balance-amount').textContent = `$${data.balance.toFixed(2)}`;
+                }
+            } catch (error) {
+                console.log('Balance sync failed:', error);
+            }
+        }, 30000);
+    </script>
+</body>
+</html>

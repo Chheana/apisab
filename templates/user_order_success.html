@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success - JakLike</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-bottom: 80px;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0066FF 0%, #0044CC 100%);
+            color: white;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .success-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .success-container {
+                padding: 0 0.5rem;
+            }
+            
+            .header {
+                padding: 1rem 0.5rem;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .success-card {
+                margin-bottom: 1rem;
+            }
+            
+            .success-header {
+                padding: 1.5rem 1rem;
+            }
+            
+            .success-icon {
+                font-size: 3rem;
+            }
+            
+            .success-title {
+                font-size: 1.5rem;
+            }
+            
+            .success-subtitle {
+                font-size: 1rem;
+            }
+            
+            .order-details {
+                padding: 1.5rem 1rem;
+            }
+            
+            .detail-item {
+                padding: 0.75rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+            
+            .detail-label {
+                font-size: 0.9rem;
+            }
+            
+            .detail-value {
+                font-size: 1rem;
+            }
+            
+            .provider-orders {
+                padding: 1rem;
+            }
+            
+            .provider-order-item {
+                padding: 0.5rem;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.25rem;
+            }
+            
+            .action-buttons {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .btn-action {
+                padding: 1rem;
+                font-size: 1rem;
+            }
+        }
+        
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        
+        .success-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+        
+        .success-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .success-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin: 0.5rem 0 0 0;
+        }
+        
+        .order-details {
+            padding: 2rem;
+        }
+        
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .detail-section h3 {
+            color: #333;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #0066FF;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .detail-value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .provider-orders {
+            background: linear-gradient(135deg, #0066FF 0%, #0044CC 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+        }
+        
+        .provider-orders h4 {
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .provider-order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .provider-order-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .provider-order-label {
+            font-weight: 500;
+        }
+        
+        .provider-order-id {
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn-action {
+            padding: 1rem;
+            border-radius: 12px;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #0066FF 0%, #0044CC 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.3);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            color: white;
+        }
+        
+        .processing-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .processing-info h4 {
+            color: #1976d2;
+            margin: 0 0 1rem 0;
+            font-size: 1.1rem;
+        }
+        
+        .processing-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .processing-steps li {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            color: #1976d2;
+        }
+        
+        .processing-steps li i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            padding: 0.75rem 0;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .nav-item {
+            text-align: center;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .nav-item.active {
+            color: #0066FF;
+        }
+        
+        .nav-item i {
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <h1>🎉 Order Success!</h1>
+    </div>
+    
+    <div class="success-container">
+        <!-- Success Card -->
+        <div class="success-card">
+            <div class="success-header">
+                <div class="success-icon">✅</div>
+                <h2 class="success-title">Order Placed Successfully!</h2>
+                <p class="success-subtitle">Your order is being processed with our service providers</p>
+            </div>
+            
+            <div class="order-details">
+                <!-- Order Information -->
+                <div class="detail-section">
+                    <h3><i class="fas fa-receipt"></i> Order Information</h3>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <span class="detail-label">Order ID:</span>
+                            <span class="detail-value">#{{ order.id }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Service:</span>
+                            <span class="detail-value">{{ order.service_name }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Quantity:</span>
+                            <span class="detail-value">{{ order.quantity }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Cost:</span>
+                            <span class="detail-value">${{ "%.2f"|format(order.total_cost) }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value">
+                                <span class="status-badge status-{{ order.status.lower() }}">
+                                    {% if order.status == 'pending' %}
+                                        <i class="fas fa-clock"></i> Processing
+                                    {% elif order.status == 'completed' %}
+                                        <i class="fas fa-check"></i> Completed
+                                    {% elif order.status == 'failed' %}
+                                        <i class="fas fa-times"></i> Failed
+                                    {% else %}
+                                        <i class="fas fa-info"></i> {{ order.status }}
+                                    {% endif %}
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Provider Order IDs -->
+                <div class="detail-section">
+                    <h3><i class="fas fa-external-link-alt"></i> Provider Order IDs</h3>
+                    <div class="provider-orders">
+                        <h4>📋 SMM Panel Orders</h4>
+                        {% if order.likes_order_id and order.likes_order_id != 'Failed' %}
+                        <div class="provider-order-item">
+                            <span class="provider-order-label">❤️ Likes Order:</span>
+                            <span class="provider-order-id">{{ order.likes_order_id }}</span>
+                        </div>
+                        {% endif %}
+                        {% if order.views_order_id and order.views_order_id != 'Failed' %}
+                        <div class="provider-order-item">
+                            <span class="provider-order-label">👀 Views Order:</span>
+                            <span class="provider-order-id">{{ order.views_order_id }}</span>
+                        </div>
+                        {% endif %}
+                        {% if not order.likes_order_id and not order.views_order_id %}
+                        <div class="provider-order-item">
+                            <span class="provider-order-label">📋 Provider Order:</span>
+                            <span class="provider-order-id">Processing...</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Processing Information -->
+                {% if order.status == 'pending' %}
+                <div class="processing-info">
+                    <h4><i class="fas fa-cogs"></i> What happens next?</h4>
+                    <ul class="processing-steps">
+                        <li><i class="fas fa-paper-plane"></i> Order sent to service provider</li>
+                        <li><i class="fas fa-clock"></i> Provider processes your order</li>
+                        <li><i class="fas fa-rocket"></i> Service delivery begins</li>
+                        <li><i class="fas fa-check"></i> Order completion notification</li>
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="/orders" class="btn-action btn-primary">
+                        <i class="fas fa-list"></i><br>
+                        View All Orders
+                    </a>
+                    <a href="/services" class="btn-action btn-secondary">
+                        <i class="fas fa-plus"></i><br>
+                        Place Another Order
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="/dashboard" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="/services" class="nav-item">
+            <i class="fas fa-box"></i>
+            <span>Services</span>
+        </a>
+        <a href="/orders" class="nav-item active">
+            <i class="fas fa-list"></i>
+            <span>Orders</span>
+        </a>
+        <a href="/balance" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Balance</span>
+        </a>
+        <a href="/profile" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Account</span>
+        </a>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-refresh order status every 10 seconds if pending
+        {% if order.status == 'pending' %}
+        setInterval(async () => {
+            try {
+                const response = await fetch(`/api/order_status/{{ order.id }}`);
+                const data = await response.json();
+                if (data.success && data.status !== 'pending') {
+                    // Reload page to show updated status
+                    location.reload();
+                }
+            } catch (error) {
+                console.log('Status check failed:', error);
+            }
+        }, 10000);
+        {% endif %}
+    </script>
+</body>
+</html>

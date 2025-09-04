@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JakLike - Order History</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Header */
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Balance Section */
+        .balance-section {
+            background: white;
+            padding: 16px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .balance-label {
+            font-size: 16px;
+            color: #666;
+            margin-right: 8px;
+        }
+
+        .balance-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Check Order Status Card */
+        .check-status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .check-status-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .check-status-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .order-id-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .order-id-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .check-status-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .check-status-btn:hover {
+            background: #1565c0;
+        }
+
+        /* Order Cards */
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .order-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .order-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .order-link {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .order-date {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .order-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-processing {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .order-ids {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .action-btn.primary {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .action-btn.primary:hover {
+            background: #1565c0;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: color 0.3s;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav-item.active {
+            color: #1976d2;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: #ccc;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .empty-description {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-left">
+            <span id="current-time">5:29</span>
+            <i class="fab fa-telegram"></i>
+            <i class="fab fa-google"></i>
+            <i class="fab fa-discord"></i>
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="status-right">
+            <span id="network-speed">24.8 KB/s</span>
+            <span>4G</span>
+            <i class="fas fa-wifi"></i>
+            <span id="battery">51%</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <i class="fas fa-times"></i>
+            <div class="header-title">JAKLIKE STORE</div>
+        </div>
+        <div class="header-right">
+            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+    </div>
+
+    <!-- Balance Section -->
+    <div class="balance-section">
+        <div class="balance-label">Balance</div>
+        <div class="balance-amount">${{ "%.2f"|format(user.balance) if user.balance else '0.00' }}</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Check Order Status Section -->
+        <div class="section-title">
+            <i class="fas fa-search"></i>
+            Check Order Status
+        </div>
+        
+        <div class="check-status-card">
+            <div class="check-status-header">
+                <i class="fas fa-search"></i>
+                <div class="check-status-title">Check Order Status</div>
+            </div>
+            
+            <div class="order-id-label">Order ID</div>
+            <input type="text" class="order-id-input" placeholder="Enter your order ID" id="orderIdInput">
+            <button class="check-status-btn" onclick="checkOrderStatus()">
+                Check Status
+            </button>
+        </div>
+
+        <!-- Recent Orders Section -->
+        <div class="section-title">
+            <i class="fas fa-clock"></i>
+            Recent Orders
+        </div>
+
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-title">
+                        <i class="fas fa-heart" style="color: #e91e63;"></i>
+                        <span>{{ order.quantity }}</span>
+                        <i class="fas fa-heart" style="color: #e91e63;"></i>
+                        <span>+ {{ (order.quantity * 10) }} View = ${{ "%.2f"|format(order.total_cost) }}</span>
+                    </div>
+                    <div class="order-price">${{ "%.2f"|format(order.total_cost) }}</div>
+                </div>
+                
+                <div class="order-link">
+                    Link: {{ order.link[:50] }}{% if order.link|length > 50 %}...{% endif %}
+                </div>
+                
+                <div class="order-date">
+                    {{ order.created_at[:16] if order.created_at else 'N/A' }}
+                </div>
+                
+                <div class="order-status status-{{ order.status.lower() }}">
+                    {{ order.status }}
+                </div>
+                
+                {% if order.likes_order_id or order.views_order_id %}
+                <div class="order-ids">
+                    Order ID(s): 
+                    {% if order.likes_order_id %}{{ order.likes_order_id }}{% endif %}
+                    {% if order.likes_order_id and order.views_order_id %},{% endif %}
+                    {% if order.views_order_id %}{{ order.views_order_id }}{% endif %}
+                </div>
+                {% endif %}
+                
+                <div class="order-actions">
+                    <button class="action-btn" onclick="viewOrderDetails({{ order.id }})">
+                        <i class="fas fa-eye"></i>
+                        Details
+                    </button>
+                    <button class="action-btn primary" onclick="orderAgain({{ order.service_id }})">
+                        <i class="fas fa-redo"></i>
+                        Order Again
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="empty-title">No Orders Yet</div>
+                <div class="empty-description">Your order history will appear here</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="{{ url_for('dashboard') }}" class="nav-item">
+            <i class="fas fa-th nav-icon"></i>
+            <span class="nav-label">Home</span>
+        </a>
+        <a href="{{ url_for('orders') }}" class="nav-item active">
+            <i class="fas fa-clock nav-icon"></i>
+            <span class="nav-label">History</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="nav-item">
+            <i class="fas fa-user nav-icon"></i>
+            <span class="nav-label">Account</span>
+        </a>
+        {% if is_admin %}
+        <a href="/admin" class="nav-item">
+            <i class="fas fa-shield-alt nav-icon"></i>
+            <span class="nav-label">Admin</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('current-time').textContent = time;
+        }
+
+        // Initialize Telegram Web App
+        function initTelegramWebApp() {
+            if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+                const tg = Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                
+                // Set theme
+                document.body.style.backgroundColor = tg.themeParams.bg_color || '#f5f5f5';
+                document.body.style.color = tg.themeParams.text_color || '#333';
+            }
+        }
+
+        // Check order status
+        function checkOrderStatus() {
+            const orderId = document.getElementById('orderIdInput').value.trim();
+            if (!orderId) {
+                alert('Please enter an order ID');
+                return;
+            }
+            
+            // Redirect to order details
+            window.location.href = `/order_details/${orderId}`;
+        }
+
+        // View order details
+        function viewOrderDetails(orderId) {
+            window.location.href = `/order_details/${orderId}`;
+        }
+
+        // Order again
+        function orderAgain(serviceId) {
+            window.location.href = `/order/${serviceId}`;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            initTelegramWebApp();
+        });
+    </script>
+</body>
+</html>

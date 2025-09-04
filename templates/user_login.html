@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JakLike - User Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0066FF 0%, #0044CC 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .login-header {
+            background: linear-gradient(135deg, #0066FF 0%, #0044CC 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .login-header h2 {
+            margin: 0;
+            font-weight: 700;
+        }
+        
+        .login-body {
+            padding: 2rem;
+        }
+        
+        .form-control {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            padding: 15px 20px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: #0066FF;
+            box-shadow: 0 0 0 0.2rem rgba(0, 102, 255, 0.25);
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #0066FF 0%, #0044CC 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 102, 255, 0.3);
+        }
+        
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid #667eea;
+        }
+        
+        .telegram-info {
+            background: #0088cc;
+            color: white;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .telegram-info i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h2><i class="fas fa-rocket me-2"></i>JakLike</h2>
+                <p class="mb-0">SMM Services Web Access</p>
+            </div>
+            
+            <div class="login-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="telegram_id" class="form-label fw-bold">Telegram ID</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-primary text-white">
+                                <i class="fab fa-telegram"></i>
+                            </span>
+                            <input type="text" class="form-control" id="telegram_id" name="telegram_id" 
+                                   placeholder="Enter your Telegram ID" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-login text-white w-100 mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>Access Dashboard
+                    </button>
+                </form>
+                
+                <div class="info-box">
+                    <h6 class="fw-bold mb-2"><i class="fas fa-info-circle me-2"></i>How to get your Telegram ID:</h6>
+                    <ol class="mb-0 small">
+                        <li>Send <code>/start</code> to <a href="https://t.me/jakliketiktok" target="_blank">@jakliketiktok</a></li>
+                        <li>Your Telegram ID will be displayed</li>
+                        <li>Use that ID to login here</li>
+                    </ol>
+                </div>
+                
+                <div class="telegram-info">
+                    <i class="fab fa-telegram"></i>
+                    <p class="mb-0 fw-bold">Access your SMM services anywhere!</p>
+                    <small>Mobile-friendly web interface</small>
+                </div>
+                
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>{{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

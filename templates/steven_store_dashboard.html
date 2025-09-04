@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JakLike - SMM Services</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Header */
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Sub Header */
+        .sub-header {
+            background: white;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .sub-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Balance Section */
+        .balance-section {
+            background: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .balance-label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .balance-amount {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 16px;
+        }
+
+        /* Service Cards */
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .service-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .lightning-icon {
+            color: #ffc107;
+            font-size: 18px;
+        }
+
+        .heart-icon {
+            color: #e91e63;
+            font-size: 16px;
+        }
+
+        .platform-tag {
+            background: #f0f0f0;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .service-details {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 12px 0;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .detail-icon {
+            font-size: 16px;
+        }
+
+        .service-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+        }
+
+        .service-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .order-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .order-btn:hover {
+            background: #1565c0;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: color 0.3s;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav-item.active {
+            color: #1976d2;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #1976d2;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .service-card {
+                margin-bottom: 12px;
+            }
+            
+            .main-content {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-left">
+            <span id="current-time">5:29</span>
+            <i class="fab fa-telegram"></i>
+            <i class="fab fa-google"></i>
+            <i class="fab fa-discord"></i>
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="status-right">
+            <span id="network-speed">24.8 KB/s</span>
+            <span>4G</span>
+            <i class="fas fa-wifi"></i>
+            <span id="battery">51%</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <i class="fas fa-times"></i>
+            <div class="header-title">JAKLIKE STORE</div>
+        </div>
+        <div class="header-right">
+            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+    </div>
+
+    <!-- Sub Header -->
+    <div class="sub-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fas fa-arrow-left"></i>
+        </button>
+        <div class="sub-title">TikTok Services</div>
+    </div>
+
+    <!-- Balance Section -->
+    <div class="balance-section">
+        <div class="balance-label">Balance</div>
+        <div class="balance-amount">${{ "%.2f"|format(user.balance) if user.balance else '0.00' }}</div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        {% if services_by_category %}
+            {% for category, services in services_by_category.items() %}
+                {% for service in services %}
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-title">
+                            <i class="fas fa-bolt lightning-icon"></i>
+                            <span>{{ service.quantity }}</span>
+                            <i class="fas fa-heart heart-icon"></i>
+                            <span>+ {{ (service.quantity * 10) }} View = ${{ "%.2f"|format(service.price) }}</span>
+                        </div>
+                        <div class="platform-tag">
+                            <i class="fas fa-tag"></i>
+                            <span>{{ service.category }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="service-details">
+                        <div class="detail-item">
+                            <i class="fas fa-heart heart-icon detail-icon"></i>
+                            <span>{{ service.quantity }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-eye" style="color: #2196f3;"></i>
+                            <span>{{ "{:,}".format(service.quantity * 10) }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="service-footer">
+                        <div class="service-price">${{ "%.2f"|format(service.price) }}</div>
+                        <button class="order-btn" onclick="orderService({{ service.id }})">
+                            Order Now
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="loading">
+                <div class="spinner"></div>
+                Loading services...
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="{{ url_for('dashboard') }}" class="nav-item active">
+            <i class="fas fa-th nav-icon"></i>
+            <span class="nav-label">Home</span>
+        </a>
+        <a href="{{ url_for('orders') }}" class="nav-item">
+            <i class="fas fa-clock nav-icon"></i>
+            <span class="nav-label">History</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="nav-item">
+            <i class="fas fa-user nav-icon"></i>
+            <span class="nav-label">Account</span>
+        </a>
+        {% if is_admin %}
+        <a href="/admin" class="nav-item">
+            <i class="fas fa-shield-alt nav-icon"></i>
+            <span class="nav-label">Admin</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('current-time').textContent = time;
+        }
+
+        // Initialize Telegram Web App
+        function initTelegramWebApp() {
+            if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+                const tg = Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                
+                // Set theme
+                document.body.style.backgroundColor = tg.themeParams.bg_color || '#f5f5f5';
+                document.body.style.color = tg.themeParams.text_color || '#333';
+            }
+        }
+
+        // Order service function
+        function orderService(serviceId) {
+            // Redirect to order form
+            window.location.href = `/order/${serviceId}`;
+        }
+
+        // Go back function
+        function goBack() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = '/';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            initTelegramWebApp();
+        });
+    </script>
+</body>
+</html>

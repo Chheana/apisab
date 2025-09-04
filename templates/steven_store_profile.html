@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JakLike - Account</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+            padding-bottom: 80px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background: #000;
+            color: white;
+            padding: 8px 16px;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Header */
+        .header {
+            background: #1976d2;
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 16px;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #1976d2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .profile-info h2 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1976d2;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Info Section */
+        .info-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .action-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .action-btn.primary {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .action-btn.primary:hover {
+            background: #1565c0;
+        }
+
+        .action-btn.danger {
+            background: #f44336;
+            color: white;
+            border-color: #f44336;
+        }
+
+        .action-btn.danger:hover {
+            background: #d32f2f;
+        }
+
+        .action-icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .action-text {
+            flex: 1;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .action-arrow {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 8px;
+            cursor: pointer;
+            transition: color 0.3s;
+            text-decoration: none;
+            color: #666;
+        }
+
+        .nav-item.active {
+            color: #1976d2;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Language Badge */
+        .language-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .lang-en {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .lang-km {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-left">
+            <span id="current-time">5:29</span>
+            <i class="fab fa-telegram"></i>
+            <i class="fab fa-google"></i>
+            <i class="fab fa-discord"></i>
+            <i class="fas fa-clock"></i>
+        </div>
+        <div class="status-right">
+            <span id="network-speed">24.8 KB/s</span>
+            <span>4G</span>
+            <i class="fas fa-wifi"></i>
+            <span id="battery">51%</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <i class="fas fa-times"></i>
+            <div class="header-title">JAKLIKE STORE</div>
+        </div>
+        <div class="header-right">
+            <i class="fas fa-chevron-down"></i>
+            <i class="fas fa-ellipsis-v"></i>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="profile-info">
+                    <h2>User #{{ user.user_id }}</h2>
+                    <p>Telegram ID: {{ user.user_id }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">${{ "%.2f"|format(user.balance) if user.balance else '0.00' }}</div>
+                <div class="stat-label">Balance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ user.total_orders or 0 }}</div>
+                <div class="stat-label">Total Orders</div>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="info-section">
+            <div class="section-title">Account Information</div>
+            
+            <div class="info-item">
+                <div class="info-label">User ID</div>
+                <div class="info-value">{{ user.user_id }}</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Language</div>
+                <div class="info-value">
+                    {% if user.language == 'km' %}
+                        <span class="language-badge lang-km">🇰🇭 Khmer</span>
+                    {% else %}
+                        <span class="language-badge lang-en">🇺🇸 English</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Registration Date</div>
+                <div class="info-value">{{ user.registration_date[:10] if user.registration_date else 'N/A' }}</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Last Activity</div>
+                <div class="info-value">{{ user.last_activity[:10] if user.last_activity else 'N/A' }}</div>
+            </div>
+            
+            <div class="info-item">
+                <div class="info-label">Total Spent</div>
+                <div class="info-value">${{ "%.2f"|format(user.total_spent) if user.total_spent else '0.00' }}</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="{{ url_for('balance') }}" class="action-btn">
+                <i class="fas fa-wallet action-icon"></i>
+                <span class="action-text">Check Balance</span>
+                <i class="fas fa-chevron-right action-arrow"></i>
+            </a>
+            
+            <a href="{{ url_for('orders') }}" class="action-btn">
+                <i class="fas fa-clock action-icon"></i>
+                <span class="action-text">Order History</span>
+                <i class="fas fa-chevron-right action-arrow"></i>
+            </a>
+            
+            <a href="{{ url_for('services') }}" class="action-btn">
+                <i class="fas fa-shopping-cart action-icon"></i>
+                <span class="action-text">Browse Services</span>
+                <i class="fas fa-chevron-right action-arrow"></i>
+            </a>
+            
+            {% if is_admin %}
+            <a href="/admin" class="action-btn">
+                <i class="fas fa-shield-alt action-icon"></i>
+                <span class="action-text">Admin Panel</span>
+                <i class="fas fa-chevron-right action-arrow"></i>
+            </a>
+            {% endif %}
+            
+            <a href="{{ url_for('logout') }}" class="action-btn danger">
+                <i class="fas fa-sign-out-alt action-icon"></i>
+                <span class="action-text">Logout</span>
+                <i class="fas fa-chevron-right action-arrow"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <a href="{{ url_for('dashboard') }}" class="nav-item">
+            <i class="fas fa-th nav-icon"></i>
+            <span class="nav-label">Home</span>
+        </a>
+        <a href="{{ url_for('orders') }}" class="nav-item">
+            <i class="fas fa-clock nav-icon"></i>
+            <span class="nav-label">History</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="nav-item active">
+            <i class="fas fa-user nav-icon"></i>
+            <span class="nav-label">Account</span>
+        </a>
+        {% if is_admin %}
+        <a href="/admin" class="nav-item">
+            <i class="fas fa-shield-alt nav-icon"></i>
+            <span class="nav-label">Admin</span>
+        </a>
+        {% endif %}
+    </div>
+
+    <script>
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('current-time').textContent = time;
+        }
+
+        // Initialize Telegram Web App
+        function initTelegramWebApp() {
+            if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+                const tg = Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                
+                // Set theme
+                document.body.style.backgroundColor = tg.themeParams.bg_color || '#f5f5f5';
+                document.body.style.color = tg.themeParams.text_color || '#333';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            initTelegramWebApp();
+        });
+    </script>
+</body>
+</html>

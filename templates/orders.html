@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}Orders - JakLike SMM{% endblock %}
+{% block page_title %}Orders Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-shopping-cart me-2"></i>All Orders ({{ orders|length }})
+                </h5>
+            </div>
+            <div class="col-auto">
+                <div class="row g-2">
+                    <div class="col-auto">
+                        <select class="form-select form-select-sm" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Search orders...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        {% if orders %}
+            <div class="table-responsive">
+                <table class="table table-hover" id="ordersTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order ID</th>
+                            <th>User ID</th>
+                            <th>Package</th>
+                            <th>URL</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td>
+                                <span class="badge bg-secondary">#{{ order.id }}</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ order.user_id }}</span>
+                            </td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 150px;" title="{{ order.package }}">
+                                    {{ order.package or 'N/A' }}
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 120px;" title="{{ order.url }}">
+                                    {% if order.url %}
+                                        <a href="{{ order.url }}" target="_blank" class="text-decoration-none">
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">
+                                    ${{ "%.2f"|format(order.price) if order.price else '0.00' }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if order.status == 'completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% elif order.status == 'pending' %}
+                                    <span class="badge bg-warning">Pending</span>
+                                {% elif order.status == 'processing' %}
+                                    <span class="badge bg-info">Processing</span>
+                                {% elif order.status == 'failed' %}
+                                    <span class="badge bg-danger">Failed</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ order.status or 'Unknown' }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    {{ order.created_at[:10] if order.created_at else 'N/A' }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary btn-sm" 
+                                            onclick="viewOrderDetails({{ order.id }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-success btn-sm" 
+                                            onclick="updateOrderStatus({{ order.id }}, 'completed')">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-warning btn-sm" 
+                                            onclick="updateOrderStatus({{ order.id }}, 'processing')">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="updateOrderStatus({{ order.id }}, 'failed')">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-inbox fa-4x mb-3"></i>
+                <h5>No Orders Found</h5>
+                <p>Orders will appear here once users start placing them.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Order Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="orderModalBody">
+                <!-- Order details will be loaded here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Update Status Modal -->
+<div class="modal fade" id="updateStatusModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateStatusForm">
+                    <div class="mb-3">
+                        <label for="newStatus" class="form-label">New Status</label>
+                        <select class="form-select" id="newStatus" name="newStatus" required>
+                            <option value="pending">Pending</option>
+                            <option value="processing">Processing</option>
+                            <option value="completed">Completed</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="statusNote" class="form-label">Note (Optional)</label>
+                        <textarea class="form-control" id="statusNote" name="statusNote" 
+                                  rows="3" placeholder="Add a note about this status change..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="confirmUpdateStatus()">Update Status</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentOrderId = null;
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    filterOrders();
+});
+
+// Status filter
+document.getElementById('statusFilter').addEventListener('change', function() {
+    filterOrders();
+});
+
+// Filter orders based on search and status
+function filterOrders() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const table = document.getElementById('ordersTable');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    
+    for (let row of rows) {
+        const text = row.textContent.toLowerCase();
+        const statusCell = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+        
+        const matchesSearch = text.includes(searchTerm);
+        const matchesStatus = !statusFilter || statusCell.includes(statusFilter);
+        
+        row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+    }
+}
+
+// View order details
+function viewOrderDetails(orderId) {
+    // For now, we'll show a simple modal with order info
+    // In a real implementation, you'd fetch detailed order data from an API
+    const modalBody = document.getElementById('orderModalBody');
+    modalBody.innerHTML = `
+        <div class="text-center py-4">
+            <i class="fas fa-info-circle fa-3x text-primary mb-3"></i>
+            <h6>Order #${orderId}</h6>
+            <p class="text-muted">Detailed order information would be displayed here.</p>
+            <p class="text-muted">This could include:</p>
+            <ul class="text-start text-muted">
+                <li>Order progress tracking</li>
+                <li>Service provider details</li>
+                <li>Timeline information</li>
+                <li>Error logs (if any)</li>
+            </ul>
+        </div>
+    `;
+    
+    const modal = new bootstrap.Modal(document.getElementById('orderModal'));
+    modal.show();
+}
+
+// Update order status
+function updateOrderStatus(orderId, status) {
+    currentOrderId = orderId;
+    document.getElementById('newStatus').value = status;
+    
+    const modal = new bootstrap.Modal(document.getElementById('updateStatusModal'));
+    modal.show();
+}
+
+// Confirm status update
+async function confirmUpdateStatus() {
+    const newStatus = document.getElementById('newStatus').value;
+    const note = document.getElementById('statusNote').value;
+    
+    if (!newStatus) {
+        alert('Please select a status');
+        return;
+    }
+    
+    // Here you would typically make an API call to update the order status
+    // For now, we'll just show a success message
+    alert(`Updated order ${currentOrderId} status to: ${newStatus}${note ? `\nNote: ${note}` : ''}`);
+    
+    // Close modal and refresh page
+    const modal = bootstrap.Modal.getInstance(document.getElementById('updateStatusModal'));
+    modal.hide();
+    location.reload();
+}
+
+// Auto-refresh orders every 30 seconds
+setInterval(function() {
+    // In a real implementation, you might want to fetch new orders via API
+    // and update the table without refreshing the entire page
+    console.log('Orders auto-refresh check...');
+}, 30000);
+</script>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,317 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - JakLike SMM{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-3"></i>
+                <div class="stat-number">{{ stats.total_users }}</div>
+                <div class="text-white-50">Total Users</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-2x mb-3"></i>
+                <div class="stat-number">${{ "%.2f"|format(stats.total_balance) }}</div>
+                <div class="text-white-50">Total Balance</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                <div class="stat-number">{{ stats.orders_today }}</div>
+                <div class="text-white-50">Orders Today</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card stat-card h-100">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-2x mb-3"></i>
+                <div class="stat-number" id="growth-rate">--</div>
+                <div class="text-white-50">Growth Rate</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row mb-4">
+    <div class="col-xl-8 col-lg-7">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-area me-2"></i>Weekly Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="weeklyChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-4 col-lg-5">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-pie me-2"></i>Service Distribution
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="serviceChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity Row -->
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-clock me-2"></i>Recent Orders
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_orders %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Package</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">{{ order.user_id }}</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">{{ order.package[:30] }}{% if order.package|length > 30 %}...{% endif %}</small>
+                                    </td>
+                                    <td>${{ "%.2f"|format(order.price) if order.price else '0.00' }}</td>
+                                    <td>
+                                        {% if order.status == 'completed' %}
+                                            <span class="badge bg-success">Completed</span>
+                                        {% elif order.status == 'pending' %}
+                                            <span class="badge bg-warning">Pending</span>
+                                        {% elif order.status == 'processing' %}
+                                            <span class="badge bg-info">Processing</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">{{ order.status or 'Unknown' }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ order.created_at[:10] if order.created_at else 'N/A' }}
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <p>No orders yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-xl-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user-plus me-2"></i>Recent Users
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Balance</th>
+                                    <th>Orders</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in recent_users %}
+                                <tr>
+                                    <td>
+                                        <span class="badge bg-primary">{{ user.user_id }}</span>
+                                    </td>
+                                    <td>${{ "%.2f"|format(user.balance) if user.balance else '0.00' }}</td>
+                                    <td>{{ user.total_orders or 0 }}</td>
+                                    <td>
+                                        <small class="text-muted">
+                                            {{ user.registration_date[:10] if user.registration_date else 'N/A' }}
+                                        </small>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <p>No users yet</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Weekly Statistics Chart
+const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+const weeklyChart = new Chart(weeklyCtx, {
+    type: 'line',
+    data: {
+        labels: [],
+        datasets: [{
+            label: 'Orders',
+            data: [],
+            borderColor: '#667eea',
+            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Top-ups ($)',
+            data: [],
+            borderColor: '#764ba2',
+            backgroundColor: 'rgba(118, 75, 162, 0.1)',
+            tension: 0.4,
+            fill: true,
+            yAxisID: 'y1'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                position: 'left',
+                title: {
+                    display: true,
+                    text: 'Orders Count'
+                }
+            },
+            y1: {
+                beginAtZero: true,
+                position: 'right',
+                title: {
+                    display: true,
+                    text: 'Top-up Amount ($)'
+                },
+                grid: {
+                    drawOnChartArea: false,
+                },
+            }
+        },
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        }
+    }
+});
+
+// Service Distribution Chart
+const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+const serviceChart = new Chart(serviceCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['TikTok', 'Facebook', 'Telegram', 'Other'],
+        datasets: [{
+            data: [45, 25, 20, 10],
+            backgroundColor: [
+                '#667eea',
+                '#764ba2',
+                '#f093fb',
+                '#f5576c'
+            ],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+            }
+        }
+    }
+});
+
+// Load weekly statistics
+async function loadWeeklyStats() {
+    try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+        
+        if (response.ok) {
+            const labels = data.map(item => item.date);
+            const orders = data.map(item => item.orders);
+            const topups = data.map(item => item.topup);
+            
+            weeklyChart.data.labels = labels;
+            weeklyChart.data.datasets[0].data = orders;
+            weeklyChart.data.datasets[1].data = topups;
+            weeklyChart.update();
+            
+            // Calculate growth rate
+            if (orders.length >= 2) {
+                const current = orders[0];
+                const previous = orders[1];
+                const growth = previous > 0 ? ((current - previous) / previous * 100).toFixed(1) : 0;
+                document.getElementById('growth-rate').textContent = `${growth}%`;
+            }
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
+
+// Load stats on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadWeeklyStats();
+    
+    // Refresh stats every 5 minutes
+    setInterval(loadWeeklyStats, 300000);
+});
+</script>
+{% endblock %}
+
+
+
+

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JakLike - Auto Login</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .title {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: #333;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+        
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            color: #721c24;
+        }
+        
+        .manual-login {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">🚀</div>
+        <h1 class="title">JakLike Mini App</h1>
+        
+        <!-- Auto-login section -->
+        <div id="auto-login">
+            <div class="spinner"></div>
+            <div class="status" id="status">Initializing...</div>
+        </div>
+        
+        <!-- Error section -->
+        <div id="error" class="error hidden">
+            <h3>⚠️ Auto-login Failed</h3>
+            <p id="error-message"></p>
+        </div>
+        
+        <!-- Manual login section -->
+        <div id="manual-login" class="manual-login hidden">
+            <h3>🔐 Manual Login</h3>
+            <p>Please enter your Telegram ID to continue:</p>
+            
+            <form id="login-form" method="POST" action="/login">
+                <div class="form-group">
+                    <label for="telegram_id">Telegram ID:</label>
+                    <input type="text" id="telegram_id" name="telegram_id" class="form-control" 
+                           placeholder="Enter your Telegram ID" required>
+                </div>
+                <button type="submit" class="btn">Access Dashboard</button>
+            </form>
+            
+            <div style="margin-top: 1rem; padding: 1rem; background: #e3f2fd; border-radius: 8px; font-size: 0.9rem; color: #1565c0;">
+                <strong>How to get your Telegram ID:</strong><br>
+                1. Send <code>/start</code> to your bot<br>
+                2. Your Telegram ID will be displayed<br>
+                3. Use that ID to login here
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tg = null;
+        let retryCount = 0;
+        const maxRetries = 3;
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Page loaded, initializing...');
+            setTimeout(initTelegramWebApp, 500);
+        });
+
+        function initTelegramWebApp() {
+            try {
+                console.log('🚀 Initializing Telegram Web App...');
+                updateStatus('Checking Telegram Web App...');
+                
+                // Check if Telegram Web App is available
+                if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+                    tg = Telegram.WebApp;
+                    console.log('✅ Telegram Web App found');
+                    
+                    // Initialize the Web App
+                    tg.ready();
+                    console.log('✅ Telegram Web App ready');
+                    
+                    // Set theme
+                    tg.expand();
+                    console.log('✅ Telegram Web App expanded');
+                    
+                    // Get user info
+                    const user = tg.initDataUnsafe?.user;
+                    const initData = tg.initData;
+                    
+                    console.log('🔍 User data:', user);
+                    console.log('🔍 Init data:', initData);
+                    
+                    if (user && user.id) {
+                        console.log('✅ Telegram user detected:', user);
+                        updateStatus('User detected, logging in...');
+                        autoLoginUser(user.id);
+                    } else if (initData) {
+                        console.log('🔍 Trying to parse initData...');
+                        try {
+                            const params = new URLSearchParams(initData);
+                            const userParam = params.get('user');
+                            
+                            if (userParam) {
+                                const userData = JSON.parse(decodeURIComponent(userParam));
+                                console.log('🔍 Parsed user data:', userData);
+                                
+                                if (userData && userData.id) {
+                                    console.log('✅ User ID found:', userData.id);
+                                    updateStatus('User detected, logging in...');
+                                    autoLoginUser(userData.id);
+                                    return;
+                                }
+                            }
+                        } catch (e) {
+                            console.error('❌ Error parsing initData:', e);
+                        }
+                    }
+                    
+                    // No user data found
+                    console.log('❌ No Telegram user data found');
+                    showManualLogin('No user data found in Telegram Web App');
+                } else {
+                    console.log('❌ Telegram Web App not available');
+                    showManualLogin('Telegram Web App not available');
+                }
+            } catch (error) {
+                console.error('❌ Error initializing Telegram Web App:', error);
+                showManualLogin('Failed to initialize Telegram Web App');
+            }
+        }
+
+        async function autoLoginUser(telegramId) {
+            try {
+                updateStatus('Logging in automatically...');
+                console.log('🔍 Attempting auto-login for user:', telegramId);
+                
+                const response = await fetch('/api/telegram-webapp', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        telegram_id: telegramId,
+                        tgWebAppData: tg ? tg.initData : null
+                    })
+                });
+                
+                const data = await response.json();
+                console.log('🔍 Auto-login response:', data);
+                
+                if (data.success) {
+                    updateStatus('Login successful! Redirecting...');
+                    console.log('✅ Auto-login successful, redirecting to:', data.redirect);
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                    console.log('❌ Auto-login failed:', data.error);
+                    showManualLogin(data.error || 'Auto-login failed');
+                }
+            } catch (error) {
+                console.error('❌ Auto-login error:', error);
+                showManualLogin('Auto-login failed: ' + error.message);
+            }
+        }
+
+        function showManualLogin(errorMessage) {
+            console.log('🔍 Showing manual login:', errorMessage);
+            document.getElementById('auto-login').classList.add('hidden');
+            document.getElementById('manual-login').classList.remove('hidden');
+            
+            if (errorMessage) {
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('error-message').textContent = errorMessage;
+            }
+        }
+
+        function updateStatus(message) {
+            document.getElementById('status').textContent = message;
+        }
+
+        // Handle form submission
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const telegramId = this.telegram_id.value.trim();
+            if (telegramId && /^\d+$/.test(telegramId)) {
+                this.submit();
+            } else {
+                alert('Please enter a valid Telegram ID (numbers only)');
+            }
+        });
+
+        // Fallback: if Telegram Web App fails to load after 5 seconds
+        setTimeout(() => {
+            if (!tg) {
+                console.log('❌ Telegram Web App failed to load, showing manual login');
+                showManualLogin('Telegram Web App failed to load');
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
